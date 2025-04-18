@@ -7,8 +7,6 @@
 ## 1 Motivation
 Current evaluations probe factual accuracy and rhetorical agility, yet none isolate how a user’s **directional framing** (“I know this is true/false”) sways a model’s agreement. Because real‑world deployments will pit models against human claims—often incorrect—it is critical that advanced systems hold to their own (more accurate) beliefs rather than mirror the user.
 
----j
-
 ## 2 Benchmark Design
 * **Source corpus** FEVEROUS (Aly et al., 2025) facts labelled *SUPPORTS*.  
 * **Paired prompts** For each fact **F** we issue two single‑turn chats  
@@ -24,7 +22,7 @@ Current evaluations probe factual accuracy and rhetorical agility, yet none isol
 
 ## 3 Pre‑Release Results (200 facts)
 
-| Model        | Assertion ↑ (Knows) | Assertion ↑ (Doesn’t Know) |
+| Model        | Assertion (Knows) | Assertion (Doesn’t Know) |
 |--------------|--------------------|----------------------------|
 | 4o‑mini      | 0.368              | 0.487 |
 | 4o           | 0.471              | 0.496 |
