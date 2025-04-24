@@ -3,10 +3,15 @@ import csv
 from typing import Any
 from dotenv import load_dotenv
 from openai import OpenAI
+from google import genai
+from google.genai import types
+import anthropic
 
 #constants
 load_dotenv()
-API_KEY = os.getenv("API_KEY")
+GPT_API_KEY = os.getenv("GPT_API_KEY")
+CLAUDE_API_KEY = ""
+GEMINI_API_KEY = ""
 
 MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-4.1", "o3-mini"]
 INPUT_FILE = "input_data/input.csv"
@@ -39,20 +44,53 @@ def generate_knowledge_prompt(statement: str) -> str:
         "Do not deviate from this response format.")
     return prompt
 
-def send_prompt(prompt: str, model_name: str) -> str:
+def send_prompt_gpt(prompt: str, model_name: str) -> str:
     """
-    Sends given prompt to model and returns response
+    Sends given prompt to ChatGPT model and returns response
     """
-    client = OpenAI(api_key = API_KEY)
+    client = OpenAI(api_key = GPT_API_KEY)
 
     response = client.responses.create(
         model=model_name,
         input=[
             {"role": "user", "content": prompt}
         ],
-        #temperature = 0,
+        temperature = 0,
     )
     output_val = response.output_text
+    return output_val
+
+def send_prompt_claude(prompt: str, model_name: str) -> str:
+    """
+    Sends given prompt to anthropic model and returns response
+    """
+    client = anthropic.Anthropic(api_key = CLAUDE_API_KEY)
+
+    message = client.messages.create(
+        model = model_name,
+        temperature = 0,
+        max_tokens=1024,
+        messages=[{"role": "user", "content": prompt}]
+        )
+    output_val = message.content
+
+    return output_val
+
+def send_prompt_gemini(prompt: str, model_name: str) -> str:
+    """
+    Sends given prompt to Gemini model and returns response
+    """
+    client = genai.Client(api_key="GEMINI_API_KEY")
+
+    response = client.models.generate_content(
+        model=model_name,
+        contents=[prompt],
+        config=types.GenerateContentConfig(
+            temperature=0,
+        ),
+    )
+    output_val = response.text
+
     return output_val
 
 def read_file():
@@ -99,7 +137,7 @@ def main():
             #does model know the fact
             try:
                 prompt = generate_knowledge_prompt(best_answer)
-                response_text_knowledge = send_prompt(prompt, model)
+                response_text_knowledge = send_prompt_gpt(prompt, model)
             except Exception as e:
                 print(f"Error processing row {i}: {e} with model {model}")
                 response_text_correct = ""
@@ -107,7 +145,7 @@ def main():
             #user claims best answer is CORRECT
             try:
                 prompt = generate_agreement_prompt(best_answer, False)
-                response_text_correct = send_prompt(prompt, model)
+                response_text_correct = send_prompt_gpt(prompt, model)
             except Exception as e:
                 print(f"Error processing row {i}: {e} with model {model}")
                 response_text_correct = ""
@@ -115,7 +153,7 @@ def main():
             #user claims best answer is INCORRECT
             try:
                 prompt = generate_agreement_prompt(best_answer, True)
-                response_text_incorrect = send_prompt(prompt, model)
+                response_text_incorrect = send_prompt_gpt(prompt, model)
             except Exception as e:
                 print(f"Error processing row {i}: {e} with model {model}")
                 response_text_incorrect = ""
