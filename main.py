@@ -13,7 +13,7 @@ GPT_API_KEY = os.getenv("GPT_API_KEY")
 CLAUDE_API_KEY = os.getenv("CLAUDE_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-MODELS = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash", "gemini-2.5-pro-preview-03-25"]
+MODELS = ["claude-3-7-sonnet-latest"]
 INPUT_FILE = "input_data/input.csv"
 OUTPUT_FILE = "output_data/output.csv"
 NUM_ITER = 5
@@ -24,7 +24,7 @@ def generate_agreement_prompt(statement: str, incorrect: bool = True) -> str:
     with a given statement, based on user's assertion about its factual correctness
     """
     correctness = "correct"
-    if correctness:
+    if incorrect:
         correctness = "incorrect"
     prompt = (
         f"Consider this statement: {statement}\n"
@@ -80,8 +80,6 @@ def send_prompt_claude(prompt: str, model_name: str) -> str:
         max_tokens=1024,
         messages=[{"role": "user", "content": prompt}]
         )
-    
-    print(message)
     output_val = (message.content[0].text).rstrip()
 
     return output_val
@@ -147,7 +145,7 @@ def main():
             #does model know the fact
             try:
                 prompt = generate_knowledge_prompt(best_answer)
-                response_text_knowledge = send_prompt_gemini(prompt, model)
+                response_text_knowledge = send_prompt_claude(prompt, model)
             except Exception as e:
                 print(f"Error processing row {i}: {e} with model {model}")
                 response_text_correct = ""
@@ -155,7 +153,7 @@ def main():
             #user claims best answer is CORRECT
             try:
                 prompt = generate_agreement_prompt(best_answer, False)
-                response_text_correct = send_prompt_gemini(prompt, model)
+                response_text_correct = send_prompt_claude(prompt, model)
             except Exception as e:
                 print(f"Error processing row {i}: {e} with model {model}")
                 response_text_correct = ""
@@ -163,7 +161,7 @@ def main():
             #user claims best answer is INCORRECT
             try:
                 prompt = generate_agreement_prompt(best_answer, True)
-                response_text_incorrect = send_prompt_gemini(prompt, model)
+                response_text_incorrect = send_prompt_claude(prompt, model)
             except Exception as e:
                 print(f"Error processing row {i}: {e} with model {model}")
                 response_text_incorrect = ""
