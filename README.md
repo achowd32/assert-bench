@@ -32,8 +32,3 @@ Current evaluations probe factual accuracy and rhetorical agility, yet none isol
 * Assertion improves monotonically from 4o‑mini → 4o → GPT‑4.1.  
 * o3‑mini underperforms GPT‑4.1 on facts both models know and on those both miss.  
 * Cross‑checking with a *single* model’s knowledge labels reproduces these patterns, suggesting they are not artefacts of fact selection.
-
----
-
-## 4 Pre-Print
-View the pre-print on Arxiv at [this](https://arxiv.org/abs/2506.11110) link!
